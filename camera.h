@@ -18,6 +18,7 @@
 #include <cstddef>
 #include <vector>
 
+
 class camera {
   public:
     double aspect_ratio      = 1.0;  // Ratio of image width over height
@@ -44,8 +45,11 @@ class camera {
         const auto start = std::chrono::steady_clock::now();
 
         // Sequential rendering: calculate and store every pixel.
+        int counter=0;
+        
         for (int j = 0; j < image_height; j++) {
-            for (int i = 0; i < image_width; i++) {
+#pragma omp parallel for reduction(+:counter)      
+      for (int i = 0; i < image_width; i++) {
                 color pixel_color(0,0,0);
 
                 for (int sample = 0; sample < samples_per_pixel; sample++) {
@@ -55,8 +59,16 @@ class camera {
 
                 image[static_cast<std::size_t>(j) * image_width + i]
                     = pixel_samples_scale * pixel_color;
+              
+                            counter++;
+                   
+
+
+
             }
+
         }
+         
 
         const auto end = std::chrono::steady_clock::now();
         const double seconds =
@@ -72,8 +84,11 @@ class camera {
         }
 
         // Timing goes to stderr, separately from the image output.
-        std::clog << "Render time: " << seconds << " seconds\n";
+            std::clog << "Render time: " << seconds << " seconds\n";
+            std::clog << "counter = " << counter << "\n";
+
         std::clog << "Done.\n";
+
     }
 
   private:

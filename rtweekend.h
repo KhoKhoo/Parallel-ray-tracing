@@ -15,6 +15,7 @@
 #include <limits>
 #include <memory>
 #include <random>
+#include <omp.h>
 
 // C++ Std Usings
 
@@ -32,10 +33,9 @@ inline double degrees_to_radians(double degrees) {
     return degrees * pi / 180.0;
 }
 
-// Shared generator for the sequential version.
+// One generator per thread
 inline std::mt19937& random_generator() {
-    static std::mt19937 generator(42);
-    return generator;
+thread_local std::mt19937 generator(42 + omp_get_thread_num());    return generator;
 }
 
 inline void set_random_seed(unsigned int seed) {
