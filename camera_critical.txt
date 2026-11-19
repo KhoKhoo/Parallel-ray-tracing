@@ -59,7 +59,7 @@ class camera {
 
                 image[static_cast<std::size_t>(j) * image_width + i]
                     = pixel_samples_scale * pixel_color;
-                    #pragma omp atomic
+                    #pragma omp critical
                                     counter++;
 
             }
